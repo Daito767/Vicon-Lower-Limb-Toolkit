@@ -2,14 +2,14 @@
 
 ---
 
-## Requirements
+### Requirements
 - **Operating System**: Windows 7 or higher
 - **Python Version**: 3.8 or later
 - **Vicon Nexus**: Version 2.14 (older versions are not tested)
 
 ---
 
-## How to Use
+### How to Use
 To run this program, follow these steps:
 
 ### Step 1: Prepare Vicon Nexus
