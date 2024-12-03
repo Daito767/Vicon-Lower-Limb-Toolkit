@@ -6,10 +6,10 @@ Created on November 2024
 """
 
 import subprocess
+import os
 
-venv_path = r"C:\Users\user\PycharmProjects\LowerLimbToolkit\.venv2\Scripts\python.exe"
-script_path = r"C:\Users\user\PycharmProjects\LowerLimbToolkit\src\main.py"
-project_dir = r"C:\Users\user\PycharmProjects\LowerLimbToolkit"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+venv_path = os.path.join(current_dir, ".venv", "Scripts", "python.exe")
+script_path = os.path.join(current_dir, "src", "main.py")
 
-subprocess.run([venv_path, script_path], cwd=project_dir)
-
+subprocess.run([venv_path, script_path], cwd=current_dir)
