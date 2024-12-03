@@ -104,7 +104,5 @@ The interface for this program is in **Romanian**. Follow these steps to configu
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
----
-
 ## Contact
 For questions or support, please contact [Ghimciuc Ioan](mailto:ghimciucioan.bw@gmail.com).
