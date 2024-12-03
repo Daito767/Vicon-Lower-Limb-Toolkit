@@ -31,6 +31,7 @@ To run this program, follow these steps:
 
    Ensure these events are added correctly to generate accurate gait reports.
    Example of how the events should look:
+
    ![Example of Foot Strike and Foot Off Events](assets/images/foot_events_example.png)
 
 ---
