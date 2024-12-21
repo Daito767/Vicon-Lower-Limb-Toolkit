@@ -4,12 +4,13 @@ Created on November 2024
 
 @author: Ghimciuc Ioan
 """
+import math
 
 import numpy as np
 from typing import List
 
 from src.utils.body import Leg
-from src.utils.vector_operations import calculate_angles, radians_to_degrees
+from src.utils.vector_operations import calculate_angles, radians_to_degrees, cross_product_vectors, unit_vectors
 
 
 def get_hip_angles(leg: Leg) -> np.ndarray:
@@ -39,8 +40,12 @@ def get_foot_angles(leg: Leg) -> np.ndarray:
 	knee_marker_trajectory = leg.get_marker('KNE').trajectory[leg.strike_event.frames[0]:leg.strike_event.frames[1]]
 	ank_marker_trajectory = leg.get_marker('ANK').trajectory[leg.strike_event.frames[0]:leg.strike_event.frames[1]]
 	toe_marker_trajectory = leg.get_marker('TOE').trajectory[leg.strike_event.frames[0]:leg.strike_event.frames[1]]
-	angles = get_angles(knee_marker_trajectory, ank_marker_trajectory, toe_marker_trajectory)
-	return 90 - angles
+	hee_marker_trajectory = leg.get_marker('HEE').trajectory[leg.strike_event.frames[0]:leg.strike_event.frames[1]]
+	# normals = get_plane_normal(toe_marker_trajectory, ank_marker_trajectory, hee_marker_trajectory)
+	angles_a = get_angles(knee_marker_trajectory, ank_marker_trajectory, toe_marker_trajectory)
+	angles_b = get_angles(ank_marker_trajectory, toe_marker_trajectory, hee_marker_trajectory)
+	# angles_c = get_angles(normals, ank_marker_trajectory, knee_marker_trajectory)
+	return 90 - angles_a  # + angles_b  # * np.sin(np.deg2rad(angles_c))
 
 
 def get_angles(marker1_trajectory: np.ndarray, marker2_trajectory: np.ndarray, marker3_trajectory: np.ndarray) -> np.ndarray:
@@ -49,6 +54,13 @@ def get_angles(marker1_trajectory: np.ndarray, marker2_trajectory: np.ndarray, m
 	angle_radians = calculate_angles(vector1, vector2)
 	angle_degrees = radians_to_degrees(angle_radians)
 	return angle_degrees
+
+
+# def get_plane_normal(marker1_trajectory: np.ndarray, marker2_trajectory: np.ndarray, marker3_trajectory: np.ndarray) -> np.ndarray:
+# 	vector1 = marker1_trajectory - marker2_trajectory
+# 	vector2 = marker3_trajectory - marker2_trajectory
+# 	normals = unit_vectors(cross_product_vectors(vector1, vector2))
+# 	return normals
 
 
 def resample_angles(angles: np.ndarray, target_length: int = 100) -> np.ndarray:
