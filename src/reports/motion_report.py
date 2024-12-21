@@ -13,7 +13,7 @@ from src.utils.body import Leg
 from src.reports.gait_angles_report import GaitAnglesReport
 from src.reports.gait_cycle_report import GaitCycleReport
 from src.reports.gait_step_report import GaitStepReport
-from src.utils.vicon_nexus import ViconNexusAPI, Marker, Event
+from src.utils.vicon_nexus import ViconNexusAPI, Marker, Event, Device
 
 
 def get_reference_angles(xlsx_file_path: str) -> Tuple[List[float], List[float], List[float]]:
@@ -53,6 +53,7 @@ class MotionReport:
 		self.end_frame: int = 0
 		self.events: Dict[str, Event] = {}
 		self.markers: Dict[str, Marker] = {}
+		self.devices: Dict[str, Device] = {}
 		self.reference_knee_angles: List[float] = []
 		self.reference_foot_angles: List[float] = []
 		self.reference_hip_angles: List[float] = []
@@ -69,6 +70,7 @@ class MotionReport:
 		self.start_frame, self.end_frame = self.vicon.GetTrialRegionOfInterest()
 		self.events = self._get_events()
 		self.markers = self.vicon.GetMarkers(self.subject_name)
+		self.devices = self.vicon.GetDevices()
 		self.reference_knee_angles, self.reference_foot_angles, self.reference_hip_angles = get_reference_angles(self.reference_angles_file_path)
 
 		left_markers, right_markers = sort_by_side(self.markers)
@@ -108,9 +110,10 @@ class MotionReport:
 
 
 if __name__ == '__main__':
-	from src.exporters import motion_report_exporter
+	from src.exporters import motion_report_pdf_exporter, motion_report_xlsx_exporter
+
 	vicon: ViconNexusAPI = ViconNexusAPI()
 	subject_names: List[str] = vicon.GetSubjectNames()
 	motion_report: MotionReport = MotionReport(vicon, subject_names[0], '../exports/Unghiurile_Perry.xlsx')
-	motion_report_exporter.export_pdf(motion_report, 'Report exemple', output_directory='../exports/')
-	motion_report_exporter.export_xlsx(motion_report, 'Report exemple', output_directory='../exports/')
+	motion_report_pdf_exporter.export(motion_report, 'Report exemple', '../exports/', True)
+	motion_report_xlsx_exporter.export(motion_report, 'Report exemple', '../exports/')
