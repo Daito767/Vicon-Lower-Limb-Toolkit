@@ -1,114 +1,20 @@
-import os
-from typing import List
+# -*- coding: utf-8 -*-
+"""
+Created on December 2024
 
-from fpdf import FPDF, XPos, YPos
-from matplotlib import pyplot as plt
+@author: Ghimciuc Ioan
+"""
+
+import os
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
-
 from src.reports.gait_angles_report import get_knee_angles, get_hip_angles, get_foot_angles
 from src.reports.motion_report import MotionReport
 from src.utils.body import Leg
 from src.utils.vicon_nexus import Event
 
 
-def export_plot_leg_angles(angles: dict, reference_angles: dict, phases: List[int], title_prefix: str, output_path: str) -> None:
-	"""Generates a plot with knee, foot, and hip angles for a specific leg, overlaying real and reference angles."""
-	fig, axs = plt.subplots(3, 1, figsize=(8, 12))
-
-	# Plot hip angles with overlay
-	axs[0].plot(angles["hip"], label="Măsurat", color='blue')
-	axs[0].plot(reference_angles["hip"], label="Etalon", linestyle="--", color='orange')
-	axs[0].set_title(f"Variația amplitudinii unghiului șoldului")
-	axs[0].set_xlabel("Ciclul de mers (procente)")
-	axs[0].set_ylabel("Unghi (grade)")
-	axs[0].legend()
-	axs[0].grid(False)
-
-	# Plot knee angles with overlay
-	axs[1].plot(angles["knee"], label="Măsurat", color='blue')
-	axs[1].plot(reference_angles["knee"], label="Etalon", linestyle="--", color='orange')
-	axs[1].set_title(f"Variația amplitudinii unghiului genunchiului")
-	axs[1].set_xlabel("Ciclul de mers (procente)")
-	axs[1].set_ylabel("Unghi (grade)")
-	axs[1].legend()
-	axs[1].grid(False)
-
-	# Plot foot angles with overlay
-	axs[2].plot(angles["foot"], label="Măsurat", color='blue')
-	axs[2].plot(reference_angles["foot"], label="Etalon", linestyle="--", color='orange')
-	axs[2].set_title(f"Variația amplitudinii unghiului gleznei")
-	axs[2].set_xlabel("Ciclul de mers (procente)")
-	axs[2].set_ylabel("Unghi (grade)")
-	axs[2].legend()
-	axs[2].grid(False)
-
-	rounded_phases = [round(phase) for phase in phases if phase]
-	xticks = [x for x in range(0, 101, 5) if all(abs(x - phase) >= 3 for phase in rounded_phases)]
-
-	for ax in axs:
-		ax.set_xticks(xticks + rounded_phases)
-		for phase in phases:
-			ax.axvline(x=phase, color='blue', linestyle='solid', linewidth=0.5)
-		for phase in [12, 50, 62]:
-			ax.axvline(x=phase, color='orange', linestyle='dashed', linewidth=1, dashes=(5, 10))
-
-	plt.tight_layout()
-	plt.savefig(output_path)
-	plt.close(fig)
-
-
-def export_pdf(report: MotionReport, report_name: str, output_directory: str) -> None:
-	from src.reports.motion_report import MotionReport
-	pdf = FPDF()
-	pdf.set_auto_page_break(auto=True, margin=15)
-	pdf.set_font("Helvetica", "B", 16)
-
-	left_leg_angles = {
-		"knee": report.gait_angles_report.left_knee_angles,
-		"foot": report.gait_angles_report.left_foot_angles,
-		"hip": report.gait_angles_report.left_hip_angles,
-	}
-	right_leg_angles = {
-		"knee": report.gait_angles_report.right_knee_angles,
-		"foot": report.gait_angles_report.right_foot_angles,
-		"hip": report.gait_angles_report.right_hip_angles,
-	}
-	reference_angles = {
-		"knee": report.reference_knee_angles,
-		"foot": report.reference_foot_angles,
-		"hip": report.reference_hip_angles
-	}
-
-	left_k = 100 / report.gait_cycle_report.left_total_frame_duration
-	right_k = 100 / report.gait_cycle_report.right_total_frame_duration
-	left_phases: List[int] = [(phase - report.left_leg.strike_event.frames[0]) * left_k for phase in report.gait_cycle_report.left_cycle_phases.values()]
-	right_phases: List[int] = [(phase - report.right_leg.strike_event.frames[0]) * right_k for phase in report.gait_cycle_report.right_cycle_phases.values()]
-
-	# Plot Left Leg Angles
-	pdf.add_page()
-	left_chart_path = os.path.join(output_directory, "left_leg_angles.png")
-	export_plot_leg_angles(left_leg_angles, reference_angles, left_phases, "membrulului inferior stâng", left_chart_path)
-	pdf.cell(0, 10, f"Analiza unghiurilor membrului inferior stâng", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-	pdf.image(left_chart_path, x=10, y=25, w=180)
-
-	# Plot Right Leg Angles
-	pdf.add_page()
-	right_chart_path = os.path.join(output_directory, "right_leg_angles.png")
-	export_plot_leg_angles(right_leg_angles, reference_angles, right_phases, "membrulului inferior drept", right_chart_path)
-	pdf.cell(0, 10, f"Analiza unghiurilor membrului inferior drept", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-	pdf.image(right_chart_path, x=10, y=25, w=180)
-
-	# Save the PDF
-	pdf_output_path = os.path.join(output_directory, f"{report_name}.pdf")
-	pdf.output(pdf_output_path)
-
-	# Clean up images
-	os.remove(left_chart_path)
-	os.remove(right_chart_path)
-
-
-def export_xlsx(report: MotionReport, report_name: str, output_directory: str) -> None:
+def export(report: MotionReport, report_name: str, output_directory: str) -> None:
 	workbook = Workbook()
 
 	angles_sheet = workbook.active
