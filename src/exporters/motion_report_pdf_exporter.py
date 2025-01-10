@@ -35,6 +35,7 @@ def add_channel_plots(channels: List[Channel], output_directory: str, start_fram
 			axs[j].set_title(channel.name)
 			axs[j].set_xlabel("Ciclul de mers (cadre EMG)")
 			axs[j].set_ylabel(channel.unit)
+			axs[j].set_xticks([])
 			axs[j].grid(False)
 
 			# Convert gait phases to EMG frames
