@@ -48,7 +48,7 @@ class ReportGeneratorApp:
         # Output Directory
         tk.Label(root, text="Folderul pentru salvare:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
         self.output_directory = tk.Entry(root, width=30)
-        exports_folder_path = r'C:\Vicon\Rezultate\Resultate Analiza Mers'
+        exports_folder_path = r'C:\Vicon\Rezultate\Rezultate Analiza Mers'
         self.output_directory.insert(0, exports_folder_path)  # Default value
         self.output_directory.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
         tk.Button(root, text="Browse", command=self.browse_output_directory).grid(row=2, column=2, padx=5, pady=5)
